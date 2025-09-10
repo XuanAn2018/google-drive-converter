@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Drive Direct Link Converter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #inputLink {
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .btn-green {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px;
+        }
+
+        .btn-green:hover {
+            background-color: #45a049;
+        }
+
+        .result-div {
+            text-align: left;
+            margin: 20px auto;
+            max-width: 80%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+        }
+
+        .result-div h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .copy-link {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .copy-link:hover {
+            background-color: #45a049;
+        }
+
+        #errorMessage, #successMessage, #copyMessage {
+            margin: 10px auto;
+            max-width: 600px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        #errorMessage { background-color: #ffebee; }
+        #successMessage { background-color: #e8f5e9; }
+        #copyMessage { background-color: #fff3e0; }
+    </style>
+</head>
+<body>
+    <h1>Google Drive Direct Link Converter</h1>
+    <input type="text" id="inputLink" placeholder="Nhập liên kết Google Drive" autofocus>
+    <br>
+    <button class="btn-green" onclick="convertLink()">Chuyển đổi</button>
+
+    <div id="downloadLinkDiv" class="result-div" style="display: none;">
+        <h2>🔗 Liên kết tải xuống trực tiếp</h2>
+        <p id="outputDownloadLink"></p>
+        <a id="downloadLink" class="copy-link" href="javascript:void(0)" onclick="copyToClipboard('outputDownloadLink')">Tải xuống ngay</a>
+        <a id="qrLink" class="copy-link" href="javascript:void(0)" onclick="showQRCode()">Xem QR</a>
+        <button class="copy-link" onclick="copyDirectLink('outputDownloadLink')">Sao chép</button>
+    </div>
+
+    <div id="viewLinkDiv" class="result-div" style="display: none;">
+        <h2>👁️ Liên kết xem trực tiếp</h2>
+        <p id="outputViewLink"></p>
+        <a id="viewLink" class="copy-link" href="javascript:void(0)" onclick="copyToClipboard('outputViewLink')">Xem trước</a>
+        <a id="qrViewLink" class="copy-link" href="javascript:void(0)" onclick="showQRCodeView()">Xem QR</a>
+        <button class="copy-link" onclick="copyDirectLink('outputViewLink')">Sao chép</button>
+    </div>
+
+    <p id="errorMessage" style="color: #d32f2f; display: none;"></p>
+    <p id="successMessage" style="color: #388e3c; display: none;"></p>
+    <p id="copyMessage" style="color: #f57c00; display: none;"></p>
+
+    <script>
+        function convertLink() {
+            var inputLink = document.getElementById("inputLink").value.trim();
+            var fileId = extractFileId(inputLink);
+
+            if (fileId) {
+                var downloadLink = "https://drive.google.com/uc?export=download&id=" + fileId;
+                var viewLink = "https://drive.google.com/uc?export=view&id=" + fileId;
+
+                document.getElementById("outputDownloadLink").textContent = downloadLink;
+                document.getElementById("outputViewLink").textContent = viewLink;
+                document.getElementById("downloadLink").href = downloadLink;
+                document.getElementById("viewLink").href = viewLink;
+
+                document.getElementById("downloadLinkDiv").style.display = "block";
+                document.getElementById("viewLinkDiv").style.display = "block";
+
+                // Hiển thị thông báo thành công
+                document.getElementById("successMessage").textContent = "✅ Chuyển đổi thành công!";
+                document.getElementById("successMessage").style.display = "block";
+
+                // Ẩn lỗi nếu có
+                document.getElementById("errorMessage").style.display = "none";
+            } else {
+                // Hiển thị lỗi
+                document.getElementById("errorMessage").textContent = "❌ Liên kết không hợp lệ. Hãy nhập một liên kết Google Drive hợp lệ.";
+                document.getElementById("errorMessage").style.display = "block";
+
+                // Ẩn kết quả
+                document.getElementById("downloadLinkDiv").style.display = "none";
+                document.getElementById("viewLinkDiv").style.display = "none";
+
+                // Ẩn thông báo thành công
+                document.getElementById("successMessage").style.display = "none";
+            }
+        }
+
+        function extractFileId(link) {
+            // Hỗ trợ nhiều định dạng link Google Drive
+            var patterns = [
+                /\/d\/([a-zA-Z0-9-_]+)/,
+                /\/file\/d\/([a-zA-Z0-9-_]+)/,
+                /id=([a-zA-Z0-9-_]+)/
+            ];
+
+            for (var i = 0; i < patterns.length; i++) {
+                var match = link.match(patterns[i]);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        function copyToClipboard(elementId) {
+            var text = document.getElementById(elementId).textContent;
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showMessage("copyMessage", "📋 Đã sao chép liên kết thành công!");
+        }
+
+        function copyDirectLink(elementId) {
+            var link = document.getElementById(elementId).textContent;
+            var textArea = document.createElement("textarea");
+            textArea.value = link;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showMessage("copyMessage", "📋 Đã sao chép liên kết thành công!");
+        }
+
+        function showMessage(elementId, message) {
+            var el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = "block";
+            setTimeout(() => {
+                el.style.display = "none";
+            }, 3000);
+        }
+
+        // ✅ ĐÃ CẬP NHẬT: DÙNG API QRSERVER.COM
+        function showQRCode() {
+            const data = encodeURIComponent(document.getElementById("outputDownloadLink").textContent);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
+            window.open(qrUrl, '_blank');
+        }
+
+        function showQRCodeView() {
+            const data = encodeURIComponent(document.getElementById("outputViewLink").textContent);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
+            window.open(qrUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
