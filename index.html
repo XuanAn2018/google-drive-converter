@@ -1,216 +1,364 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Google Drive Direct Link Converter</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Converter - Chuyển đổi liên kết Google Drive</title>
     <style>
-        body {
-            text-align: center;
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #202124;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        #inputLink {
-            width: 100%;
-            max-width: 600px;
+            padding: 0;
             box-sizing: border-box;
-            padding: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #5f6368;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--background-color);
+        }
+
+        .converter-section {
+            grid-column: 1 / -1;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dadce0;
+            border-radius: var(--border-radius);
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin: 10px auto;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: #3367d6;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .result.active {
             display: block;
         }
 
-        .btn-green {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 24px;
-            border: none;
+        .result h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .result-text {
+            background-color: white;
+            padding: 12px;
             border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 10px;
+            border: 1px solid #dadce0;
+            word-break: break-all;
+            margin-bottom: 15px;
         }
 
-        .btn-green:hover {
-            background-color: #45a049;
+        .copy-btn {
+            background-color: var(--secondary-color);
         }
 
-        .result-div {
-            text-align: left;
-            margin: 20px auto;
-            max-width: 80%;
+        .copy-btn:hover {
+            background-color: #2d9248;
+        }
+
+        .instructions ol, .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .example {
+            background-color: #f1f3f4;
             padding: 15px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 6px;
-        }
-
-        .result-div h2 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        .copy-link {
-            display: inline-block;
-            background-color: #4CAF50;
-            color: white;
-            padding: 8px 16px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            font-family: monospace;
             font-size: 14px;
         }
 
-        .copy-link:hover {
-            background-color: #45a049;
+        .note {
+            background-color: #fff8e1;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
         }
 
-        #errorMessage, #successMessage, #copyMessage {
-            margin: 10px auto;
-            max-width: 600px;
-            padding: 10px;
-            border-radius: 4px;
+        .features-list {
+            list-style-type: none;
+            padding-left: 0;
         }
 
-        #errorMessage { background-color: #ffebee; }
-        #successMessage { background-color: #e8f5e9; }
-        #copyMessage { background-color: #fff3e0; }
+        .features-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #5f6368;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <h1>Google Drive Direct Link Converter</h1>
-    <input type="text" id="inputLink" placeholder="Nhập liên kết Google Drive" autofocus>
-    <br>
-    <button class="btn-green" onclick="convertLink()">Chuyển đổi</button>
+    <div class="container">
+        <header>
+            <h1>Google Drive Converter</h1>
+            <p>Công cụ chuyển đổi liên kết Google Drive sang định dạng có thể tải xuống trực tiếp</p>
+        </header>
 
-    <div id="downloadLinkDiv" class="result-div" style="display: none;">
-        <h2>🔗 Liên kết tải xuống trực tiếp</h2>
-        <p id="outputDownloadLink"></p>
-        <a id="downloadLink" class="copy-link" href="javascript:void(0)" onclick="copyToClipboard('outputDownloadLink')">Tải xuống ngay</a>
-        <a id="qrLink" class="copy-link" href="javascript:void(0)" onclick="showQRCode()">Xem QR</a>
-        <button class="copy-link" onclick="copyDirectLink('outputDownloadLink')">Sao chép</button>
+        <div class="main-content">
+            <div class="card converter-section">
+                <h2>Chuyển đổi liên kết</h2>
+                <div class="input-group">
+                    <label for="driveUrl">Nhập liên kết Google Drive:</label>
+                    <input type="text" id="driveUrl" placeholder="https://drive.google.com/file/d/...">
+                </div>
+                <button id="convertBtn">
+                    <i>🔄</i> Chuyển đổi
+                </button>
+                
+                <div class="result" id="result">
+                    <h3>Liên kết đã chuyển đổi:</h3>
+                    <div class="result-text" id="convertedUrl"></div>
+                    <button class="copy-btn" id="copyBtn">
+                        <i>📋</i> Sao chép liên kết
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Công cụ này làm gì?</h2>
+                <p>Google Drive Converter giúp bạn chuyển đổi liên kết chia sẻ từ Google Drive thành liên kết có thể tải xuống trực tiếp.</p>
+                
+                <ul class="features-list">
+                    <li>Chuyển đổi liên kết xem thành liên kết tải xuống trực tiếp</li>
+                    <li>Hỗ trợ tất cả các loại tệp trên Google Drive</li>
+                    <li>Không cần đăng nhập hoặc xác thực</li>
+                    <li>Hoàn toàn miễn phí và không lưu trữ dữ liệu</li>
+                </ul>
+            </div>
+
+            <div class="card instructions">
+                <h2>Hướng dẫn sử dụng</h2>
+                <ol>
+                    <li>Truy cập Google Drive và tìm tệp bạn muốn chuyển đổi</li>
+                    <li>Nhấp chuột phải vào tệp và chọn "Chia sẻ"</li>
+                    <li>Trong hộp thoại chia sẻ, đảm bảo cài đặt quyền truy cập là "Bất kỳ ai có liên kết"</li>
+                    <li>Sao chép liên kết chia sẻ</li>
+                    <li>Dán liên kết vào ô nhập liệu bên trên và nhấn "Chuyển đổi"</li>
+                    <li>Sao chép liên kết đã chuyển đổi và sử dụng nó để tải xuống trực tiếp</li>
+                </ol>
+
+                <div class="note">
+                    <strong>Lưu ý:</strong> Liên kết đã chuyển đổi chỉ hoạt động nếu tệp gốc được chia sẻ với quyền "Bất kỳ ai có liên kết" có thể xem.
+                </div>
+
+                <h3>Ví dụ về liên kết đầu vào:</h3>
+                <div class="example">
+                    https://drive.google.com/file/d/1ABC123def456GHI789jkl/view?usp=sharing
+                </div>
+                
+                <h3>Liên kết sau khi chuyển đổi:</h3>
+                <div class="example">
+                    https://drive.google.com/uc?export=download&id=1ABC123def456GHI789jkl
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Google Drive Converter - Công cụ chuyển đổi liên kết đơn giản và hiệu quả</p>
+        </footer>
     </div>
-
-    <div id="viewLinkDiv" class="result-div" style="display: none;">
-        <h2>👁️ Liên kết xem trực tiếp</h2>
-        <p id="outputViewLink"></p>
-        <a id="viewLink" class="copy-link" href="javascript:void(0)" onclick="copyToClipboard('outputViewLink')">Xem trước</a>
-        <a id="qrViewLink" class="copy-link" href="javascript:void(0)" onclick="showQRCodeView()">Xem QR</a>
-        <button class="copy-link" onclick="copyDirectLink('outputViewLink')">Sao chép</button>
-    </div>
-
-    <p id="errorMessage" style="color: #d32f2f; display: none;"></p>
-    <p id="successMessage" style="color: #388e3c; display: none;"></p>
-    <p id="copyMessage" style="color: #f57c00; display: none;"></p>
 
     <script>
-        function convertLink() {
-            var inputLink = document.getElementById("inputLink").value.trim();
-            var fileId = extractFileId(inputLink);
-
-            if (fileId) {
-                var downloadLink = "https://drive.google.com/uc?export=download&id=" + fileId;
-                var viewLink = "https://drive.google.com/uc?export=view&id=" + fileId;
-
-                document.getElementById("outputDownloadLink").textContent = downloadLink;
-                document.getElementById("outputViewLink").textContent = viewLink;
-                document.getElementById("downloadLink").href = downloadLink;
-                document.getElementById("viewLink").href = viewLink;
-
-                document.getElementById("downloadLinkDiv").style.display = "block";
-                document.getElementById("viewLinkDiv").style.display = "block";
-
-                // Hiển thị thông báo thành công
-                document.getElementById("successMessage").textContent = "✅ Chuyển đổi thành công!";
-                document.getElementById("successMessage").style.display = "block";
-
-                // Ẩn lỗi nếu có
-                document.getElementById("errorMessage").style.display = "none";
-            } else {
-                // Hiển thị lỗi
-                document.getElementById("errorMessage").textContent = "❌ Liên kết không hợp lệ. Hãy nhập một liên kết Google Drive hợp lệ.";
-                document.getElementById("errorMessage").style.display = "block";
-
-                // Ẩn kết quả
-                document.getElementById("downloadLinkDiv").style.display = "none";
-                document.getElementById("viewLinkDiv").style.display = "none";
-
-                // Ẩn thông báo thành công
-                document.getElementById("successMessage").style.display = "none";
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            const driveUrl = document.getElementById('driveUrl').value.trim();
+            const resultDiv = document.getElementById('result');
+            const convertedUrlElement = document.getElementById('convertedUrl');
+            
+            if (!driveUrl) {
+                alert('Vui lòng nhập liên kết Google Drive');
+                return;
             }
-        }
-
-        function extractFileId(link) {
-            // Hỗ trợ nhiều định dạng link Google Drive
-            var patterns = [
-                /\/d\/([a-zA-Z0-9-_]+)/,
-                /\/file\/d\/([a-zA-Z0-9-_]+)/,
-                /id=([a-zA-Z0-9-_]+)/
-            ];
-
-            for (var i = 0; i < patterns.length; i++) {
-                var match = link.match(patterns[i]);
-                if (match && match[1]) {
-                    return match[1];
+            
+            // Extract file ID from Google Drive URL
+            let fileId = '';
+            
+            // Check for different Google Drive URL formats
+            if (driveUrl.includes('/file/d/')) {
+                // Standard format: https://drive.google.com/file/d/FILE_ID/view
+                const match = driveUrl.match(/\/file\/d\/([^\/]+)/);
+                if (match) {
+                    fileId = match[1];
                 }
+            } else if (driveUrl.includes('id=')) {
+                // Alternative format with id parameter
+                const match = driveUrl.match(/id=([^&]+)/);
+                if (match) {
+                    fileId = match[1];
+                }
+            } else if (driveUrl.length === 33 || driveUrl.length === 44) {
+                // Direct file ID
+                fileId = driveUrl;
             }
-            return null;
-        }
-
-        function copyToClipboard(elementId) {
-            var text = document.getElementById(elementId).textContent;
-            var textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            showMessage("copyMessage", "📋 Đã sao chép liên kết thành công!");
-        }
-
-        function copyDirectLink(elementId) {
-            var link = document.getElementById(elementId).textContent;
-            var textArea = document.createElement("textarea");
-            textArea.value = link;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            showMessage("copyMessage", "📋 Đã sao chép liên kết thành công!");
-        }
-
-        function showMessage(elementId, message) {
-            var el = document.getElementById(elementId);
-            el.textContent = message;
-            el.style.display = "block";
-            setTimeout(() => {
-                el.style.display = "none";
-            }, 3000);
-        }
-
-        // ✅ ĐÃ CẬP NHẬT: DÙNG API QRSERVER.COM
-        function showQRCode() {
-            const data = encodeURIComponent(document.getElementById("outputDownloadLink").textContent);
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
-            window.open(qrUrl, '_blank');
-        }
-
-        function showQRCodeView() {
-            const data = encodeURIComponent(document.getElementById("outputViewLink").textContent);
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
-            window.open(qrUrl, '_blank');
-        }
+            
+            if (!fileId) {
+                alert('Không tìm thấy ID tệp trong liên kết. Vui lòng kiểm tra lại liên kết.');
+                return;
+            }
+            
+            // Create direct download link
+            const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            
+            // Display result
+            convertedUrlElement.textContent = directDownloadUrl;
+            resultDiv.classList.add('active');
+        });
+        
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const convertedUrl = document.getElementById('convertedUrl').textContent;
+            
+            if (!convertedUrl) {
+                alert('Không có liên kết nào để sao chép');
+                return;
+            }
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(convertedUrl).then(function() {
+                alert('Đã sao chép liên kết vào clipboard!');
+            }, function(err) {
+                console.error('Lỗi khi sao chép: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = convertedUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Đã sao chép liên kết vào clipboard!');
+            });
+        });
     </script>
 </body>
 </html>
